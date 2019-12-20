@@ -7,9 +7,19 @@ endif()
 project(bayan VERSION 0.0.$ENV{TRAVIS_BUILD_NUMBER})
 
 find_package(Threads REQUIRED)
-find_package(Boost COMPONENTS unit_test_framework program_options system REQUIRED)
+find_package(Boost COMPONENTS unit_test_framework
+                              program_options 
+                              filesystem 
+                              REQUIRED)
 
-set(sources bayan.cpp BlockHashComparator.h BlockHashComparator.cpp FileHandler.h FileHandler.cpp Hash.h)
+set(sources bayan.cpp 
+            BlockHashComparator.h 
+            BlockHashComparator.cpp 
+            FileHandler.h 
+            FileHandler.cpp
+            FileUtilities.h
+            FileUtilities.cpp
+            Hash.h)
 
 add_executable(bayan ${sources})
 

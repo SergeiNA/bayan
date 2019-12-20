@@ -2,10 +2,11 @@
 #include <fstream>
 #include <unordered_map>
 
-#include <boost/filesystem.hpp>
+
 #include <boost/program_options.hpp>
 
 #include "FileHandler.h"
+#include "FileUtilities.h"
 #include "BlockHashComparator.h"
 
 namespace popt = boost::program_options;
@@ -34,7 +35,7 @@ void Run(FileList files_, HashType hashType, size_t blockSize){
     FileHandler fileHandler(files_);
     auto groupFiles = fileHandler.groupBySize();
     FileList uniqueFiles(fileHandler.GetUniqueFiles());
-    std::vector<FileList> groupDubs;
+    std::vector<FileSet> groupDubs;
 
     for(auto&& fgroup:groupFiles){
         BlockHashComparator blockHasher(fgroup, hashType, blockSize);
@@ -48,12 +49,12 @@ void Run(FileList files_, HashType hashType, size_t blockSize){
 
     std::cout << "Unique files: " << std::endl;
     for(const auto& uf: uniqueFiles)
-        std::cout << uf << std::endl;
+        std::cout <<'\t'<< uf << std::endl;
     std::cout << "Dublicate files: " << std::endl;
 
     int gcount =0;
     for(const auto& group:groupDubs){
-        std::cout<<"Group "<<++gcount<<": ";
+        std::cout<<'\t'<<"Group "<<++gcount<<": ";
         for(const auto& file: group)
             std::cout<<file<<' ';
         std::cout<<std::endl;
@@ -65,8 +66,7 @@ int main(int argc, const char *argv[]){
     FileList fileList;
     std::map<std::string, HashType> hashTypeSelector{
         {"boost",HashType::BOOST},
-        {"crc",HashType::CRC},
-        {"sha1",HashType::SHA1}
+        {"crc",HashType::CRC}
     };
 
     HashType hashType;
@@ -74,12 +74,12 @@ int main(int argc, const char *argv[]){
     try {
         popt::options_description desc{"Options"};
         desc.add_options()
-                ("help,h", "show help")
+                ("help,h", "display help")
                 ("files,F", popt::value<std::vector<std::string>>()->multitoken()->
                         zero_tokens()->composing()->notifier(set_files), "files to compare, able to use without command")
+                ("dir,D", popt::value<std::string>(),"Set searching directory")
                 ("hash,H", popt::value<std::string>()->default_value("boost"), "hash func for comparation: crc/boost") //->notifier(set_hasher)
                 ("block,B", popt::value<size_t>()->default_value(1), "block size (bytes)");
-
 
         popt::positional_options_description pos_descr;
         pos_descr.add("files",-1);
@@ -92,8 +92,11 @@ int main(int argc, const char *argv[]){
         store(parsed_options, vm);
         notify(vm);
 
-        if (vm.count("help"))
+        if (vm.count("help")){
             std::cout << desc << '\n';
+            return 0;
+        }
+
         if (vm.count("hash")){
             std::cout<< "Hash type: "<<vm["hash"].as<std::string>()<<std::endl;
             hashType = hashTypeSelector[vm["hash"].as<std::string>()];
@@ -102,14 +105,25 @@ int main(int argc, const char *argv[]){
             std::cout << "block size: " << vm["block"].as<size_t>() << std::endl;
             blockSize = vm["block"].as<size_t>();
         }
-        if(vm.count("files")){
-            fileList = vm["files"].as<FileList>();
+        if(vm.count("dir")){
+            fileList = RecursiveFileList(vm["dir"].as<std::string>());
         }
-
+        else if(vm.count("files")){
+            fileList =vm["files"].as<FileList>();
+            ValidateFileNames(fileList);
+        }
+        else
+            fileList = RecursiveFileList("");
         Run(fileList,hashType,blockSize);
 
     }
+    catch(const popt::error& err){
+        std::cerr << err.what() << std::endl;
+        return 1;
+    }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
+        return 1;
     }
+    return 0;
 }

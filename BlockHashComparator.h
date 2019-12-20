@@ -11,7 +11,8 @@ class BlockHashComparator{
     typedef std::vector<char> Block;
     typedef std::pair<std::vector<std::string>,size_t> FileList_sized;
     typedef std::unordered_map<std::string, std::ifstream> FStreamFileList;
-    typedef std::unordered_map<Hash_value, FileList> HashFileListPack;
+    typedef std::vector<std::unordered_map<Hash_value, FileSet>> HashFileListPack;
+    typedef std::vector<std::set<FileName>> FileMask;
 
 public:
     BlockHashComparator(FileList_sized fileListS,
@@ -26,7 +27,7 @@ public:
         return hashPack;
     }
 
-    std::vector<FileList> dumpDublicates();
+    std::vector<FileSet> dumpDublicates();
 
 private:
     size_t file_pack_size;
@@ -38,4 +39,5 @@ private:
     std::unique_ptr<Hash> hasher;
     HashFileListPack hashFilesPack;
     HashPack hashPack;
+    FileMask fileMask;
 };

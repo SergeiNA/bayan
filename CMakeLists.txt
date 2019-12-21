@@ -26,20 +26,43 @@ set(sources bayan.cpp
             common.h
             Hash.h)
 
-add_executable(bayan ${sources})
+set(bayanLibSrc AppOption.h
+            AppOption.cpp
+            MainHandler.h
+            MainHandler.cpp
+            BlockHashComparator.h 
+            BlockHashComparator.cpp 
+            FileHandler.h 
+            FileHandler.cpp
+            FileUtilities.h
+            FileUtilities.cpp
+            common.h
+            Hash.h)
 
-set_target_properties(bayan PROPERTIES
+add_library(bayanLib ${bayanLibSrc})
+
+add_executable(bayan bayan.cpp)
+add_executable(FileHandlerTests FileHandlerTests.cpp)
+
+set_target_properties(bayan FileHandlerTests bayanLib PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
     COMPILE_OPTIONS "-Wpedantic;-Wall;-Wextra"
 )
 
-set_target_properties(bayan PROPERTIES
+set_target_properties(bayan FileHandlerTests PROPERTIES
     COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
     INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
 )
 
 target_link_libraries(bayan
+    bayanLib
+    Threads::Threads
+    ${Boost_LIBRARIES}
+)
+
+target_link_libraries(FileHandlerTests
+    bayanLib
     Threads::Threads
     ${Boost_LIBRARIES}
 )
@@ -57,3 +80,7 @@ set(CPACK_PACKAGE_CONTACT "SergeiNA at github.com")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 
 include(CPack)
+
+enable_testing()
+
+add_test(FileHandlerTest FileHandlerTests)

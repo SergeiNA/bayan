@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "Common.h"
+#include "common.h"
 
 void PrintFileNames( const FileList& uniqueFiles,
                     const std::vector<FileSet>& groupDubs, 

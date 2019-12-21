@@ -10,7 +10,7 @@
 #include <boost/functional/hash.hpp>
 #include <boost/crc.hpp>
 
-#include "Common.h"
+#include "common.h"
 
 class Hash{
 public:

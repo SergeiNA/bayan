@@ -2,7 +2,7 @@
 #include <boost/program_options.hpp>
 #include <optional>
 
-#include "Common.h"
+#include "common.h"
 
 struct Options{
     FileList fileList;

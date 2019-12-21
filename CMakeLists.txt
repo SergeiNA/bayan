@@ -23,7 +23,7 @@ set(sources bayan.cpp
             FileHandler.cpp
             FileUtilities.h
             FileUtilities.cpp
-            # Common.h
+            common.h
             Hash.h)
 
 add_executable(bayan ${sources})

@@ -13,7 +13,6 @@ find_package(Boost COMPONENTS unit_test_framework
                               REQUIRED)
 
 set(sources bayan.cpp
-            Common.h
             AppOption.h
             AppOption.cpp
             MainHandler.h
@@ -24,6 +23,7 @@ set(sources bayan.cpp
             FileHandler.cpp
             FileUtilities.h
             FileUtilities.cpp
+            Common.h
             Hash.h)
 
 add_executable(bayan ${sources})

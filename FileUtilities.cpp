@@ -30,22 +30,18 @@ void ValidateFileNames(FileList& fList){
 
 
 FileList RecursiveFileList(const std::string& path_name) {
-    fs::path parent_path;
-    if (!path_name.empty()) {
-        if (!fs::exists(path_name)) return {};
-        parent_path = fs::path(path_name);
-    } else {
-        parent_path = fs::current_path();
-    }
+    if(!fs::exists(path_name))
+        throw std::runtime_error("[ERROR]: Incorrect file path");
+    fs::path parent_path = (path_name.empty()) ? fs::current_path() : fs::path(path_name);
+
     FileList fileList;
     try {
-        for (const auto& currPath : fs::recursive_directory_iterator(parent_path)) {
-            if (fs::is_regular_file(currPath.path())) {
-                fileList.push_back(currPath.path().string());
-            }
-        }
+        for (const auto& currPath : fs::recursive_directory_iterator(parent_path)) 
+            if (fs::is_regular_file(currPath.path())) 
+                fileList.emplace_back(currPath.path().string());
+
     } catch (const std::exception& e) {
-        std::cerr << e.what() << " " << fileList.back() << std::endl;
+        std::cerr << e.what() << " on file: " << fileList.back() << std::endl;
         return fileList;
     }
     return fileList;

@@ -20,13 +20,7 @@ public:
         size_t block_size);
 
     bool Process();
-    
     FileList updateFiles();
-
-    HashPack& GetHashPack(){
-        return hashPack;
-    }
-
     std::vector<FileSet> dumpDublicates();
 
 private:
@@ -38,6 +32,5 @@ private:
     FStreamFileList fsfList;
     std::unique_ptr<Hash> hasher;
     HashFileListPack hashFilesPack;
-    HashPack hashPack;
     FileMask fileMask;
 };

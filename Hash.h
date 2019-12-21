@@ -10,12 +10,7 @@
 #include <boost/functional/hash.hpp>
 #include <boost/crc.hpp>
 
-#include "common.h"
-
-enum class HashType {
-    BOOST, 
-    SHA1, 
-    CRC };
+#include "Common.h"
 
 class Hash{
 public:
@@ -76,4 +71,10 @@ public:
         std::unique_ptr<Hash> ptr(factory[hashType]());
         return ptr;
     }
+};
+
+inline std::map<std::string, HashType> hashTypeSelector{
+    {"boost",HashType::BOOST},
+    {"crc",HashType::CRC},
+    {"sha1",HashType::SHA1}
 };

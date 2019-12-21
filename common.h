@@ -9,4 +9,8 @@ typedef std::set<FileName> FileSet;
 typedef std::vector<FileName> FileList;
 
 typedef std::string Hash_value;
-typedef std::vector<Hash_value> HashPack;
+
+enum class HashType {
+    BOOST, 
+    SHA1, 
+    CRC };

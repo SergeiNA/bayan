@@ -2,7 +2,6 @@
 
 #include "FileHandler.h"
 #include <boost/test/unit_test.hpp>
-#include <boost/filesystem.hpp>
 #include <string>
 #include <iostream>
 
@@ -21,8 +20,6 @@ FileList files_ ={  "TestData/s25tA_0.txt",
 
 BOOST_AUTO_TEST_CASE(uniqueFilesBySize)
 {
-    namespace fs = boost::filesystem;
-    std::cerr<<fs::current_path().string()<<std::endl;
     FileList uniqueChech{"TestData/s60tA_0.txt"};
     FileHandler fileHandler(files_);
     [[maybe_unused]]auto groupFiles = fileHandler.groupBySize();
@@ -49,7 +46,7 @@ BOOST_AUTO_TEST_CASE(sameFileBySize)
                 "TestData/s30tA_0.txt",
                 "TestData/s30tA_1.txt",
                 "TestData/s30tB_0.txt",
-                "TestData/s30tC_0.txt",
+                "TestData/s30tC_0.txt"
             },
         30}
     };
@@ -60,11 +57,10 @@ BOOST_AUTO_TEST_CASE(sameFileBySize)
     for(size_t i=0;i<groupbySizeChech.size();++i){
         BOOST_CHECK_EQUAL(groupbySizeChech.at(i).second,groupFiles.at(i).second);
 
-        for(size_t j=0;j<groupbySizeChech.at(i).first.size(); ++j)
-            BOOST_CHECK_EQUAL_COLLECTIONS(groupbySizeChech.at(i).first.begin(),
-                                          groupbySizeChech.at(i).first.end(),
-                                          groupFiles.at(i).first.begin(),
-                                          groupFiles.at(i).first.end());
+        BOOST_CHECK_EQUAL_COLLECTIONS(  groupbySizeChech.at(i).first.begin(),
+                                        groupbySizeChech.at(i).first.end(),
+                                        groupFiles.at(i).first.begin(),
+                                        groupFiles.at(i).first.end());
     }
 }
 

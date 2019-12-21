@@ -8,6 +8,7 @@ addons:
     - ubuntu-toolchain-r-test
     packages:
     - libboost-all-dev
+    - libboost-test-dev
     - g++-8
 env:
   - MATRIX_EVAL="CC=gcc-8 && CXX=g++-8"

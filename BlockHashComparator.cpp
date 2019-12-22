@@ -13,7 +13,9 @@ BlockHashComparator::BlockHashComparator(FileList_sized fileListS,
     fileMask.resize(1);
     for (auto &&file : fileListS.first)
     {
-        fsfList.try_emplace(file, std::ifstream(file, std::ios::binary | std::ios_base::in));
+        fsfList.try_emplace(file, std::ifstream());
+        fsfList[file].rdbuf()->pubsetbuf(nullptr,0);
+        fsfList[file].open(file, std::ios::binary | std::ios_base::in );
         fileMask.at(0).insert(file);
     }
     hasher = HashFactory(hasht).createHash();

@@ -5,12 +5,13 @@
 void PrintFileNames( const FileList& uniqueFiles,
                     const std::vector<FileSet>& groupDubs, 
                     std::ostream& os){
-
-    os << "Unique files: " << std::endl;
+    if(!uniqueFiles.empty())
+        os << "Unique files: " << std::endl;
     for(const auto& uf: uniqueFiles)
         os <<'\t'<< uf << std::endl;
 
-    os << "Dublicate files: " << std::endl;
+    if(!groupDubs.empty())
+        os << "Dublicate files: " << std::endl;
     int gcount =0;
     for(const auto& group:groupDubs){
         os<<'\t'<<"Group "<<++gcount<<": ";
@@ -32,13 +33,15 @@ groupFiles(FileList files_, HashType hashType, size_t blockSize){
 
     for(auto&& fgroup:groupFiles){
         BlockHashComparator blockHasher(fgroup, hashType, blockSize);
-
-        while (blockHasher.Process())
-            for (auto &&uf : blockHasher.updateFiles())
-                uniqueFiles.emplace_back(uf);
-
-        for(auto&& group:blockHasher.dumpDublicates())
+        
+        blockHasher.Process();
+        auto uniqueByContent = blockHasher.GetUniqueFiles();
+        uniqueFiles.reserve(uniqueFiles.size() + uniqueByContent.size());
+        uniqueFiles.insert(end(uniqueFiles),begin(uniqueByContent),end(uniqueByContent) );
+        
+        for(auto&& group:blockHasher.DumpDublicates())
             groupDubs.emplace_back(std::move(group));
+
     }
     return std::make_pair(uniqueFiles,groupDubs);
 }

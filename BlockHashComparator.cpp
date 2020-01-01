@@ -21,9 +21,9 @@ BlockHashComparator::BlockHashComparator(FileList_sized fileListS,
     hasher = HashFactory(hasht).createHash();
 }
 
-bool BlockHashComparator::Process()
+bool BlockHashComparator::hashBlocksProcess()
 {
-    if (EoF)
+    if (EoF || fileMask.empty())
         return false;
     Block b(b_size);
     hashFilesPack.clear();
@@ -54,8 +54,7 @@ bool BlockHashComparator::Process()
     return true;
 }
 
-FileList BlockHashComparator::updateFiles(){
-    FileList uniqueFiles;
+void BlockHashComparator::updateFileMask(){
     fileMask.clear();
     for(auto&& dupGroup:hashFilesPack){
         for (auto &&[hash,hashGroup]:dupGroup){
@@ -69,10 +68,18 @@ FileList BlockHashComparator::updateFiles(){
                 fileMask.emplace_back(hashGroup);
         }
     }
+}
+
+void BlockHashComparator::Process(){
+    while (hashBlocksProcess())
+        updateFileMask();
+}
+
+FileList BlockHashComparator::GetUniqueFiles() const {
     return uniqueFiles;
 }
 
-std::vector<FileSet> BlockHashComparator::dumpDublicates(){
+std::vector<FileSet> BlockHashComparator::DumpDublicates(){
     std::vector<FileSet> dublicate;
     for(auto&& group:fileMask)
         dublicate.emplace_back(std::move(group));

@@ -18,10 +18,12 @@ public:
     BlockHashComparator(FileList_sized fileListS,
         HashType hasht, 
         size_t block_size);
-
-    bool Process();
-    FileList updateFiles();
-    std::vector<FileSet> dumpDublicates();
+    void Process();
+    FileList GetUniqueFiles() const;
+    std::vector<FileSet> DumpDublicates();
+private:
+    void updateFileMask();
+    bool hashBlocksProcess();
 
 private:
     size_t file_pack_size;
@@ -29,6 +31,7 @@ private:
     size_t nblocks;
     bool EoF;
 
+    FileList uniqueFiles;
     FStreamFileList fsfList;
     std::unique_ptr<Hash> hasher;
     HashFileListPack hashFilesPack;

@@ -29,6 +29,15 @@ groupbySize{{
     30}
 };
 
+std::vector<std::pair<FileList, size_t>> 
+fwd_rvrs{{
+        {
+            "TestDataR/s10fwd.txt",
+            "TestDataR/s10rvrs.txt"
+        },
+    10}
+};
+
 BOOST_AUTO_TEST_CASE(uniqueFilesCheck)
 {
     FileList uniqueChech ={
@@ -40,11 +49,31 @@ BOOST_AUTO_TEST_CASE(uniqueFilesCheck)
     FileList uniqueFiles;
 
     for(const auto& fgroup:groupbySize){
-        BlockHashComparator blockHasher(fgroup, HashType::BOOST, 6);
+        BlockHashComparator blockHasher(fgroup, HashType::BOOST, 5);
 
-        while (blockHasher.Process())
-            for (auto &&uf : blockHasher.updateFiles())
-                uniqueFiles.emplace_back(uf);
+        blockHasher.Process();
+        auto uniqueByContent = blockHasher.GetUniqueFiles();
+        uniqueFiles.reserve(uniqueFiles.size() + uniqueByContent.size());
+        uniqueFiles.insert(end(uniqueFiles),begin(uniqueByContent),end(uniqueByContent));
+    }
+    BOOST_CHECK_EQUAL_COLLECTIONS(uniqueChech.begin(),uniqueChech.end(),
+                            uniqueFiles.begin(),uniqueFiles.end());
+}
+
+BOOST_AUTO_TEST_CASE(forward_revers_FilesCheck)
+{
+    FileList uniqueChech ={
+        "TestDataR/s10rvrs.txt",
+        "TestDataR/s10fwd.txt"
+    };
+    
+    FileList uniqueFiles;
+
+    for(const auto& fgroup:fwd_rvrs){
+        BlockHashComparator blockHasher(fgroup, HashType::BOOST, 5);
+        blockHasher.Process();
+
+        uniqueFiles = blockHasher.GetUniqueFiles();
     }
     BOOST_CHECK_EQUAL_COLLECTIONS(uniqueChech.begin(),uniqueChech.end(),
                             uniqueFiles.begin(),uniqueFiles.end());
@@ -73,11 +102,9 @@ BOOST_AUTO_TEST_CASE(dublicatesCheck)
 
     for(const auto& fgroup:groupbySize){
         BlockHashComparator blockHasher(fgroup, HashType::BOOST, 6);
+        blockHasher.Process();
 
-        while (blockHasher.Process())
-            for ([[maybe_unused]]auto &&uf : blockHasher.updateFiles());
-
-        for(auto&& group:blockHasher.dumpDublicates())
+        for(auto&& group:blockHasher.DumpDublicates())
             dubs.emplace_back(std::move(group));
     }
     for(size_t i=0;i<dubsChech.size();++i){
